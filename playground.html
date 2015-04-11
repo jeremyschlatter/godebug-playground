@@ -5,6 +5,8 @@
     <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
+    <button id="run">Run</button>
+    <button id="debug">Debug</button>
     <div id="editor">package main
 
 import (
@@ -20,16 +22,29 @@ func main() {
     <div id="console"></div>
     <script src="https://cdn.jsdelivr.net/ace/1.1.9/min/ace.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/js/jqconsole.js" type="text/javascript" charset="utf-8"></script>
     <script>
-        (function() {
+        var godebugConsole;
+        $(function() {
+            // Set up editor.
             var editor = ace.edit("editor");
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/golang");
-            $("#editor").css("visibility", "visible");
-        })();
+            $( "#editor" ).css("visibility", "visible");
+
+            // Set up console and add hook for generated code.
+            godebugConsole = $( "#console" ).jqconsole('', '>>> ');
+
+            // Set up buttons.
+            $( "#debug" ).click(function() {
+                $.ajax("/compile", {
+                    type: "POST",
+                    data: editor.getValue(),
+                    processData: false,
+                    success: $.globalEval
+                });
+            });
+        });
     </script>
-    <script src="/js/jqconsole.js" type="text/javascript" charset="utf-8"></script>
-    <script> var godebugConsole = $('#console').jqconsole('', '>>> '); </script>
-    <script src="/js/main.js" type="text/javascript" charset="utf-8"></script>
 </body>
 </html>

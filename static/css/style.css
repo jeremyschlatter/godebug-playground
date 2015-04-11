@@ -1,10 +1,11 @@
 /* The console container element */
 #console {
   position: absolute;
-  right:0;
+  right: 0;
+  top: 40px;
   width: 400px;
   height: 500px;
-  background-color:black;
+  background-color: black;
 }
 /* The inner console element. */
 .jqconsole {
@@ -43,8 +44,25 @@
 /* The editor. */
 #editor {
     position: absolute;
+    top: 40px;
     left: 0;
     width: 400px;
     height: 500px;
     background-color: black;
+}
+/* The run button. */
+#run {
+    position: absolute;
+    top: 5px;
+    left: 70px;
+    width: 50px;
+    height: 30px;
+}
+/* The debug button. */
+#debug {
+    position: absolute;
+    top: 5px;
+    left: 140px;
+    width: 50px;
+    height: 30px;
 }
