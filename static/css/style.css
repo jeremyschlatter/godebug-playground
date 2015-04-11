@@ -1,6 +1,7 @@
 /* The console container element */
 #console {
   position: absolute;
+  right:0;
   width: 400px;
   height: 500px;
   background-color:black;
@@ -38,4 +39,12 @@
 /* The text color of the output. */
 .jqconsole-output {
     color: white;
+}
+/* The editor. */
+#editor {
+    position: absolute;
+    left: 0;
+    width: 400px;
+    height: 500px;
+    background-color: black;
 }
