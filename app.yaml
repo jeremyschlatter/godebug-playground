@@ -16,3 +16,6 @@ handlers:
 
 - url: /compile
   script: _go_app
+
+- url: /compile-normal
+  script: _go_app

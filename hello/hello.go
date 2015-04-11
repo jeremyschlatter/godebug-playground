@@ -21,11 +21,30 @@ import (
 )
 
 func init() {
-	http.HandleFunc("/compile", compile)
 	build.Default.GOROOT = "goroot"
 	build.Default.GOPATH = "gopath"
 	build.Default.GOOS = "darwin"
 	build.Default.GOARCH = "amd64"
+	http.HandleFunc("/compile", compile)
+	http.HandleFunc("/compile-normal", compileNoDebug)
+}
+
+func compileNoDebug(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	progBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		c.Errorf("Failed to read request: %v", err)
+		http.Error(w, "Failed to read request", http.StatusInternalServerError)
+		return
+	}
+	progBytes, err = compileToJS(c, progBytes)
+	if err != nil {
+		c.Errorf("Failed to compile to javascript: %v", err)
+		http.Error(w, "Compilation to javascript failed", http.StatusInternalServerError)
+		return
+	}
+	w.Write(progBytes)
+	c.Infof("great success")
 }
 
 func compile(w http.ResponseWriter, r *http.Request) {

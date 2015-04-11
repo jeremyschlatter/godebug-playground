@@ -35,9 +35,19 @@ func main() {
             // Set up console and add hook for generated code.
             godebugConsole = $( "#console" ).jqconsole('', '>>> ');
 
-            // Set up buttons.
+            // Set up debug button.
             $( "#debug" ).click(function() {
                 $.ajax("/compile", {
+                    type: "POST",
+                    data: editor.getValue(),
+                    processData: false,
+                    success: $.globalEval
+                });
+            });
+
+            // Set up run button.
+            $( "#run" ).click(function() {
+                $.ajax("/compile-normal", {
                     type: "POST",
                     data: editor.getValue(),
                     processData: false,
