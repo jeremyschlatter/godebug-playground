@@ -4,5 +4,15 @@ runtime: go
 api_version: go1
 
 handlers:
-- url: /.*
+- url: /playground
+  static_files: playground.html
+  upload: playground.html
+
+- url: /css
+  static_dir: static/css
+
+- url: /js
+  static_dir: static/js
+
+- url: /compile
   script: _go_app
