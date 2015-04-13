@@ -41,6 +41,10 @@
 .jqconsole-output {
     color: white;
 }
+/* The text color of "system" messages. */
+.jqconsole-system {
+    color: grey;
+}
 /* The editor. */
 #editor {
     position: absolute;

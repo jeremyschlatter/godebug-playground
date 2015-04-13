@@ -24,6 +24,10 @@ func main() {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="/js/jqconsole.js" type="text/javascript" charset="utf-8"></script>
     <script id="worker" type="javascript/worker">
+        "use strict";
+        function $goOnExit() {
+            postMessage({cmd: "done"});
+        }
         function post(url, data) {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", url, true);
@@ -35,10 +39,10 @@ func main() {
             xhr.send(data);
         }
         function godebugOutput(data) {
-            postMessage({"cmd": "output", "data": data});
+            postMessage({cmd: "output", data: data});
         }
         function godebugPrompt() {
-            postMessage({"cmd": "prompt"});
+            postMessage({cmd: "prompt"});
         }
         addEventListener("message", function(e) {
             var msg = e.data;
@@ -80,6 +84,10 @@ func main() {
                         jqconsole.Prompt(true, function(input) {
                             worker.postMessage({cmd: "input", data: input});
                         });
+                        break;
+                    case "done":
+                        worker.terminate();
+                        jqconsole.Write("[program exited]", "jqconsole-system");
                         break;
                     };
                 }, false);
