@@ -45,6 +45,10 @@
 .jqconsole-system {
     color: grey;
 }
+/* The text color of error messages. */
+.jqconsole-error {
+    color: red;
+}
 /* The editor. */
 #editor {
     position: absolute;

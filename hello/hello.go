@@ -6,12 +6,14 @@ import (
 	"go/ast"
 	"go/build"
 	"go/parser"
+	"go/scanner"
 	"go/token"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"appengine"
 
@@ -58,7 +60,7 @@ func compile(w http.ResponseWriter, r *http.Request) {
 	progBytes, err = instrumentWithGodebug(c, progBytes)
 	if err != nil {
 		c.Errorf("Failed to instrument Go code: %v", err)
-		http.Error(w, "Invalid Go program", http.StatusBadRequest)
+		http.Error(w, formatError(err), http.StatusBadRequest)
 		return
 	}
 	progBytes, err = compileToJS(c, progBytes)
@@ -71,18 +73,55 @@ func compile(w http.ResponseWriter, r *http.Request) {
 	c.Infof("great success")
 }
 
+func formatError(err error) string {
+	switch x := err.(type) {
+	case nil:
+		return ""
+	default:
+		return err.Error()
+	case scanner.ErrorList:
+		list := make(errorList, len(x))
+		for i := range list {
+			list[i] = x[i]
+		}
+		return list.Error()
+	}
+}
+
+type errorList []error
+
+func (list errorList) Error() string {
+	var result []string
+	for i, e := range list {
+		if i == 5 {
+			result = append(result, fmt.Sprintf("(and %d more errors)", len(list)-i))
+			break
+		}
+		result = append(result, e.Error())
+	}
+	return strings.Join(result, "\n")
+}
+
 func instrumentWithGodebug(c appengine.Context, b []byte) ([]byte, error) {
 	var conf gen.Config
+	var parseErrors errorList
 	conf.Config.TypeChecker.Error = func(err error) {
 		c.Errorf(err.Error())
+		parseErrors = append(parseErrors, err)
 	}
 	f, err := conf.ParseFile("main.go", b)
 	if err != nil {
+		if len(parseErrors) > 0 {
+			return nil, parseErrors
+		}
 		return nil, err
 	}
 	conf.CreateFromFiles("main", f)
 	prog, err := conf.Load()
 	if err != nil {
+		if len(parseErrors) > 0 {
+			return nil, parseErrors
+		}
 		return nil, err
 	}
 	var out bytes.Buffer

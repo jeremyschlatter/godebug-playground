@@ -34,6 +34,8 @@ func main() {
             xhr.onload = function() {
                 if (xhr.status >= 200 && xhr.status < 400) {
                     eval(xhr.responseText);
+                } else if (xhr.status === 400) {
+                    postMessage({cmd: "error", data: xhr.responseText});
                 }
             };
             xhr.send(data);
@@ -89,6 +91,9 @@ func main() {
                         worker.terminate();
                         jqconsole.Write("[program exited]", "jqconsole-system");
                         break;
+                    case "error":
+                        worker.terminate();
+                        jqconsole.Write(msg.data, "jqconsole-error");
                     };
                 }, false);
             }
