@@ -8,15 +8,28 @@
     <script src="/js/jqconsole.js" type="text/javascript" charset="utf-8"></script>
     <script src="/bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <link rel="import" href="/bower_components/paper-button/paper-button.html">
+    <link rel="import" href="/bower_components/core-icons/core-icons.html">
+    <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
     <style>
     html,body {
       height: 100%;
       width: 400px;
       font-family: 'RobotoDraft', sans-serif;
     }
-    paper-button {
+    paper-button,paper-fab {
         background: #2E95AC;
         color: white;
+    }
+    paper-fab {
+        position: absolute;
+        right: 5px;
+        top: -20px;
+        z-index: 10;
+    }
+    div {
+        position: relative;
+        width: 100%;
+        margin: 0.5em 0.29em;
     }
     #console1,#console2,#console3 {
         position: relative;
@@ -95,13 +108,8 @@
             var blobURL = window.URL.createObjectURL(blob);
 
             var console1 = $( "#console1" ).jqconsole("", ">>> ");
-            worker1 = attachWorker(console1);
-
             var console2 = $( "#console2" ).jqconsole("", ">>> ");
-            worker2 = attachWorker(console2);
-
             var console3 = $( "#console3" ).jqconsole("", ">>> ");
-            worker3 = attachWorker(console3);
 
             $( "#next" ).click(function() {
                 console1.SetPromptText("next");
@@ -115,17 +123,35 @@
                 worker2.postMessage({cmd: "input", data: "print x"});
             });
 
-            $.ajax({
-                type: "POST",
-                url: "/compile",
-                data: editor.getValue(),
-                processData: false,
-                success: function(data) {
-                    worker1.postMessage({cmd: "run", code: data});
-                    worker2.postMessage({cmd: "run", code: data});
-                    worker2.postMessage({cmd: "input", data: "next"});
-                    worker3.postMessage({cmd: "run", code: data});
+            function refresh() {
+                if (!!worker1) {
+                    worker1.terminate();
+                    console1.Reset();
+                    worker2.terminate();
+                    console2.Reset();
+                    worker3.terminate();
+                    console3.Reset();
                 }
+                worker1 = attachWorker(console1);
+                worker2 = attachWorker(console2);
+                worker3 = attachWorker(console3);
+                $.ajax({
+                    type: "POST",
+                    url: "/compile",
+                    data: editor.getValue(),
+                    processData: false,
+                    success: function(data) {
+                        worker1.postMessage({cmd: "run", code: data});
+                        worker2.postMessage({cmd: "run", code: data});
+                        worker2.postMessage({cmd: "input", data: "next"});
+                        worker3.postMessage({cmd: "run", code: data});
+                    }
+                });
+            }
+            refresh();
+
+            $( "#refresh" ).click(function() {
+                    refresh();
             });
         });
     </script>
@@ -140,7 +166,9 @@
     <p>Explore the program with free-form text input. Use the "help" command to see your options.</p>
     <div id="console3"></div>
     <p>And to show you there is nothing up our sleeves, here is the program you have been debugging. Make some changes, click the reload button, and scroll back up to step through the new program!</p>
-    <div id="editor1">package main
+    <div>
+        <paper-fab id="refresh" icon="refresh"></paper-fab>
+        <div id="editor1">package main
 
 import (
     "fmt"
@@ -157,5 +185,6 @@ func main() {
         fmt.Printf("Hello, %s!\n", x)
     }
 }</div>
+    </div>
 </body>
 </html>
