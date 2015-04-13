@@ -4,6 +4,10 @@ runtime: go
 api_version: go1
 
 handlers:
+- url: /playground/blog-post
+  static_files: blogpost.html
+  upload: blogpost.html
+
 - url: /playground
   static_files: playground.html
   upload: playground.html
@@ -13,6 +17,9 @@ handlers:
 
 - url: /js
   static_dir: static/js
+
+- url: /bower_components
+  static_dir: bower_components
 
 - url: /compile
   script: _go_app

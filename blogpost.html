@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/ace/1.1.9/min/ace.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/js/jqconsole.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <link rel="import" href="/bower_components/paper-button/paper-button.html">
+    <style>
+    html,body {
+      height: 100%;
+      width: 400px;
+      font-family: 'RobotoDraft', sans-serif;
+    }
+    paper-button {
+        background: #2E95AC;
+        color: white;
+    }
+    #console1,#console2,#console3 {
+        position: relative;
+        background-color: black;
+        width: 100%;
+        height: 200px;
+        margin: 0.5em 0.29em;
+    }
+    p {
+        margin: 0.5em 0.29em;
+    }
+    #editor1 {
+        position: relative;
+        margin: 0.5em 0.29em;
+        width: 100%;
+        height: 400px;
+        background-color: black;
+    }
+    </style>
+    <script>
+        "use strict";
+        $(function() {
+            var console1 = $( "#console1" ).jqconsole("", ">>> ");
+            var console2 = $( "#console2" ).jqconsole("", ">>> ");
+            var console3 = $( "#console3" ).jqconsole("", ">>> ");
+
+            var editor = ace.edit("editor1");
+            editor.setTheme("ace/theme/monokai");
+            editor.getSession().setMode("ace/mode/golang");
+            $( "#editor1" ).css("visibility", "visible");
+        });
+    </script>
+</head>
+<body>
+    <p>Click the next button to step through the program.</p>
+    <paper-button raised id="next">Next</paper-button>
+    <div id="console1"></div>
+    <p>Click the print button to print a variable.</p>
+    <paper-button raised id="print">Print x</paper-button>
+    <div id="console2"></div>
+    <p>Explore the program with free-form text input. Use the "help" command to see your options.</p>
+    <div id="console3"></div>
+    <p>And to show you there is nothing up our sleeves, here is the program you have been debugging. Make some changes, click the reload button, and scroll back up to step through the new program!</p>
+    <div id="editor1">package main
+
+import (
+    "fmt"
+
+    "github.com/mailgun/godebug/lib"
+)
+
+func main() {
+    // Pause the program.
+    godebug.SetTrace()
+
+    x := "debugger"
+    if true {
+        fmt.Printf("Hello, %s!", x)
+    }
+}</div>
+</body>
+</html>

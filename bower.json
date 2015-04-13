@@ -1,0 +1,19 @@
+{
+  "name": "godebug-playground",
+  "version": "0.0.0",
+  "homepage": "https://github.com/jeremyschlatter/godebug-playground",
+  "authors": [
+    "Jeremy Schlatter <jeremy.schlatter@gmail.com>"
+  ],
+  "description": "Debug Go code in your browser",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.5"
+  }
+}
