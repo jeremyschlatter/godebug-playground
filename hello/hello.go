@@ -42,7 +42,7 @@ func compileNoDebug(w http.ResponseWriter, r *http.Request) {
 	progBytes, err = compileToJS(c, progBytes)
 	if err != nil {
 		c.Errorf("Failed to compile to javascript: %v", err)
-		http.Error(w, "Compilation to javascript failed", http.StatusInternalServerError)
+		http.Error(w, formatError(err), http.StatusBadRequest)
 		return
 	}
 	w.Write(progBytes)
