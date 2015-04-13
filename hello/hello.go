@@ -36,13 +36,13 @@ func compileNoDebug(w http.ResponseWriter, r *http.Request) {
 	progBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		c.Errorf("Failed to read request: %v", err)
-		http.Error(w, "Failed to read request", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 	progBytes, err = compileToJS(c, progBytes)
 	if err != nil {
 		c.Errorf("Failed to compile to javascript: %v", err)
-		http.Error(w, formatError(err), http.StatusBadRequest)
+		http.Error(w, formatError(c, err), http.StatusBadRequest)
 		return
 	}
 	w.Write(progBytes)
@@ -54,37 +54,46 @@ func compile(w http.ResponseWriter, r *http.Request) {
 	progBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		c.Errorf("Failed to read request: %v", err)
-		http.Error(w, "Failed to read request", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 	progBytes, err = instrumentWithGodebug(c, progBytes)
 	if err != nil {
 		c.Errorf("Failed to instrument Go code: %v", err)
-		http.Error(w, formatError(err), http.StatusBadRequest)
+		http.Error(w, formatError(c, err), http.StatusBadRequest)
 		return
 	}
 	progBytes, err = compileToJS(c, progBytes)
 	if err != nil {
 		c.Errorf("Failed to compile to javascript: %v", err)
-		http.Error(w, "Compilation to javascript failed", http.StatusInternalServerError)
+		http.Error(w, formatError(c, err), http.StatusBadRequest)
 		return
 	}
 	w.Write(progBytes)
 	c.Infof("great success")
 }
 
-func formatError(err error) string {
+func formatError(c appengine.Context, err error) string {
 	switch x := err.(type) {
 	case nil:
 		return ""
 	default:
-		return err.Error()
+		c.Errorf("Unhandled compilation error: type: %T, value: %v", err, err)
+		return "compilation error"
+	case compiler.ErrorList:
+		list := make(errorList, len(x))
+		for i := range list {
+			list[i] = x[i]
+		}
+		return list.Error()
 	case scanner.ErrorList:
 		list := make(errorList, len(x))
 		for i := range list {
 			list[i] = x[i]
 		}
 		return list.Error()
+	case errorList:
+		return err.Error()
 	}
 }
 

@@ -47,7 +47,7 @@
 }
 /* The text color of error messages. */
 .jqconsole-error {
-    color: red;
+    color: tomato;
 }
 /* The editor. */
 #editor {
