@@ -36,26 +36,69 @@
         background-color: black;
     }
     </style>
+    <script id="worker" type="javascript/worker">
+        "use strict";
+        function $goOnExit() {
+            postMessage({cmd: "done"});
+        }
+        function godebugOutput(data) {
+            postMessage({cmd: "output", data: data});
+        }
+        function godebugPrompt() {
+            postMessage({cmd: "prompt"});
+        }
+        addEventListener("message", function(e) {
+            var msg = e.data;
+            switch (msg.cmd) {
+            case "run":
+                eval(msg.code);
+                break;
+            case "input":
+                godebugInput(msg.data);
+                break;
+            };
+        });
+    </script>
     <script>
         "use strict";
         $(function() {
-            var console1 = $( "#console1" ).jqconsole("", ">>> ");
-            console1.Prompt(false, function(){});
-            var console2 = $( "#console2" ).jqconsole("", ">>> ");
-            console2.Prompt(false, function(){});
-            var console3 = $( "#console3" ).jqconsole("", ">>> ");
-            console3.Prompt(false, function(){});
-
+            var worker1, worker2, worker3;
             var editor = ace.edit("editor1");
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/golang");
             $( "#editor1" ).css("visibility", "visible");
 
+            var blob = new Blob([document.querySelector("#worker").textContent], {type: "text/javascript"});
+            var blobURL = window.URL.createObjectURL(blob);
+            var console1 = $( "#console1" ).jqconsole("", ">>> ");
+            //console1.Prompt(false, function(){});
+            worker1 = new Worker(blobURL);
+            worker1.addEventListener("message", function(e) {
+                var msg = e.data;
+                switch (msg.cmd) {
+                case "output":
+                    console1.Write(msg.data, "jqconsole-output");
+                    break;
+                case "prompt":
+                    console1.Prompt(true, function(input) {
+                        worker1.postMessage({cmd: "input", data: input});
+                    });
+                    break;
+                case "done":
+                    worker1.terminate();
+                    console1.Write("[program exited]", "jqconsole-system");
+                    break;
+                }
+            });
+            var console2 = $( "#console2" ).jqconsole("", ">>> ");
+            console2.Prompt(false, function(){});
+            var console3 = $( "#console3" ).jqconsole("", ">>> ");
+            console3.Prompt(false, function(){});
+
             $( "#next" ).click(function() {
                 console1.SetPromptText("next");
                 console1.AbortPrompt();
-                console1.Write("a line\n", "jqconsole-output");
-                console1.Prompt(false, function(){});
+                worker1.postMessage({cmd: "input", data: "next"});
             });
 
             $( "#print" ).click(function() {
@@ -63,6 +106,16 @@
                 console2.AbortPrompt();
                 console2.Write("\"debugger\"\n", "jqconsole-output");
                 console2.Prompt(false, function(){});
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "/compile",
+                data: editor.getValue(),
+                processData: false,
+                success: function(data) {
+                    worker1.postMessage({cmd:"run", code: data});
+                }
             });
         });
     </script>
@@ -91,7 +144,7 @@ func main() {
 
     x := "debugger"
     if true {
-        fmt.Printf("Hello, %s!", x)
+        fmt.Printf("Hello, %s!\n", x)
     }
 }</div>
 </body>
