@@ -15,9 +15,9 @@
 .jqconsole-cursor {
     background-color: gray;
 }
-/* The cursor color when the console looses focus. */
+/* The cursor color when the console loses focus. */
 .jqconsole-blurred .jqconsole-cursor {
-    background-color: #666;
+    background-color: black;
 }
 /* The current prompt text color */
 .jqconsole-prompt {

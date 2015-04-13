@@ -40,13 +40,30 @@
         "use strict";
         $(function() {
             var console1 = $( "#console1" ).jqconsole("", ">>> ");
+            console1.Prompt(false, function(){});
             var console2 = $( "#console2" ).jqconsole("", ">>> ");
+            console2.Prompt(false, function(){});
             var console3 = $( "#console3" ).jqconsole("", ">>> ");
+            console3.Prompt(false, function(){});
 
             var editor = ace.edit("editor1");
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/golang");
             $( "#editor1" ).css("visibility", "visible");
+
+            $( "#next" ).click(function() {
+                console1.SetPromptText("next");
+                console1.AbortPrompt();
+                console1.Write("a line\n", "jqconsole-output");
+                console1.Prompt(false, function(){});
+            });
+
+            $( "#print" ).click(function() {
+                console2.SetPromptText("print x");
+                console2.AbortPrompt();
+                console2.Write("\"debugger\"\n", "jqconsole-output");
+                console2.Prompt(false, function(){});
+            });
         });
     </script>
 </head>
