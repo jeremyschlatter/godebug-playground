@@ -5,6 +5,10 @@ api_version: go1
 
 handlers:
 - url: /playground/blog-post
+  static_files: blogpost2.html
+  upload: blogpost2.html
+
+- url: /playground/blog-post-v1
   static_files: blogpost.html
   upload: blogpost.html
 
