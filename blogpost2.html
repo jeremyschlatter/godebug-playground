@@ -6,26 +6,31 @@
     <script src="https://cdn.jsdelivr.net/ace/1.1.9/min/ace.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="/js/jqconsole.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/js/iframeResizer.contentWindow.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="/bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <link rel="import" href="/bower_components/paper-button/paper-button.html">
     <link rel="import" href="/bower_components/core-icons/core-icons.html">
     <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+    <link rel="import" href="/bower_components/paper-shadow/paper-shadow.html">
     <style>
     html,body {
       height: 100%;
       width: 100%;
+      margin: 0;
       font-family: 'RobotoDraft', sans-serif;
     }
     paper-button,paper-fab {
         background: #2E95AC;
         color: white;
+        margin: 0;
     }
-    paper-fab {
+    #arefresh {
         position: absolute;
-        right: 20px;
+        left: 250px;
         top: 20px;
         z-index: 10;
+    }
+    .inline-shadow {
+        display: inline-block;
     }
     code {
         cursor: pointer;
@@ -38,24 +43,24 @@
     #wrapper {
         position: relative;
         width: 100%;
-        margin: 0.5em 0.29em;
+        margin: 0.5em 0;
     }
     #console1,#console2,#console3 {
         position: relative;
         background-color: black;
         width: 100%;
         height: 400px;
-        margin: 0.5em 0.29em;
+        margin: 0.5em 0;
     }
     p {
-        margin: 0.7em 0.29em;
+        margin: 0.7em 0;
     }
     #editor1 {
         position: relative;
-        margin: 0.5em 0.29em;
+        margin: 0.5em 0;
         width: 100%;
         height: 400px;
-        background-color: black;
+        /*background-color: black;*/
     }
     #whitespaceBeforeEditor {
         width: 100%;
@@ -87,6 +92,7 @@
     </script>
     <script>
         "use strict";
+        var editor;
         $(function() {
 
             function attachWorker(console) {
@@ -112,7 +118,7 @@
             }
 
             var worker1, worker2, worker3;
-            var editor = ace.edit("editor1");
+            editor = ace.edit("editor1");
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/golang");
             $( "#editor1" ).css("visibility", "visible");
@@ -154,25 +160,46 @@
                 worker2 = attachWorker(console2);
                 worker3 = attachWorker(console3);
                 */
+                $( "#console1" ).css("visibility", "visible");
                 $.ajax({
                     type: "POST",
                     url: "/compile",
                     data: editor.getValue(),
                     processData: false,
                     success: function(data) {
+                        editor.getSession().setAnnotations([]);
                         worker1.postMessage({cmd: "run", code: data});
                         /*
                         worker2.postMessage({cmd: "run", code: data});
                         worker2.postMessage({cmd: "input", data: "next"});
                         worker3.postMessage({cmd: "run", code: data});
                         */
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 400) {
+                            displayErrors(xhr.responseText);
+                        }
                     }
                 });
             }
-            refresh();
+            //refresh();
+
+            function parseLine(line) {
+                var parts = line.split(":");
+                return {
+                    row: parseInt(parts[1]) - 1,
+                    text: parts[3].trim(),
+                    type: "error"
+                }
+            }
+
+            function displayErrors(errors) {
+                editor.getSession().setAnnotations($.map(errors.trim().split('\n'), parseLine));
+            }
 
             $( "#refresh" ).click(function() {
                     refresh();
+                    document.getElementById("help").innerHTML = '<p>Type <paper-shadow z="2" class="inline-shadow"><code>next</code></paper-shadow> to step through the program, or type <paper-shadow z="2" class="inline-shadow"><code>help</code></paper-shadow> to see the available commands.</p>';
             });
 
             var code = $( "code" );
@@ -189,12 +216,7 @@
     </script>
 </head>
 <body>
-    <div id="console1"></div>
-    <p>Give it a try! Type <code>next</code> to start stepping through the program, or type <code>help</code> to see the available commands.</p>
-    <div id="whitespaceBeforeEditor"></div>
-
     <div id="wrapper">
-        <paper-fab id="refresh" icon="refresh"></paper-fab>
         <div id="editor1">package main
 
 import (
@@ -212,7 +234,9 @@ func main() {
         fmt.Printf("Hello, %s!\n", x)
     }
 }</div>
+    <paper-button raised id="refresh">Debug it!</paper-button>
     </div>
-    <p>When you're ready, try editing the program. Click the reload button to re-launch the debugger on your code!</p>
+    <div id="help"></div>
+    <div style="visibility:hidden;" id="console1"></div>
 </body>
 </html>
