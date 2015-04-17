@@ -9,7 +9,6 @@
     <script src="/bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <link rel="import" href="/bower_components/paper-button/paper-button.html">
     <link rel="import" href="/bower_components/core-icons/core-icons.html">
-    <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
     <link rel="import" href="/bower_components/paper-shadow/paper-shadow.html">
     <style>
     html,body {
@@ -18,27 +17,34 @@
       margin: 0;
       font-family: 'RobotoDraft', sans-serif;
     }
-    paper-button,paper-fab {
+    p {
+        font-size: 20px;
+        font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+        line-height: 32px;
+        font-stretch: normal;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal
+    }
+    #refresh {
         background: #2E95AC;
         color: white;
-        margin: 0;
-    }
-    #arefresh {
-        position: absolute;
-        left: 250px;
-        top: 20px;
-        z-index: 10;
+        margin: 4px 0;
+        width: 105px;
     }
     .inline-shadow {
         display: inline-block;
+        background-color: #f7f7f9;
+        padding: 2px 4px;
+        margin: 2px;
     }
     code {
         cursor: pointer;
         color: #d14;
         background-color: #f7f7f9;
-        border: 1px solid #e1e1e8;
+        border: none;
         white-space: nowrap;
-        padding: 2px 4px;
+        padding: 0;
     }
     #wrapper {
         position: relative;
@@ -204,7 +210,7 @@
             });
 
             function showInstructions() {
-                document.getElementById("help").innerHTML = '<p>You are now using godebug! Type <paper-shadow z="2" class="inline-shadow"><code>next</code></paper-shadow> to step through the program, or type <paper-shadow z="2" class="inline-shadow"><code>help</code></paper-shadow> to see the available commands.</p>';
+                document.getElementById("help").innerHTML = '<p>You are now using godebug! Type <paper-shadow z="1" class="inline-shadow"><code>next</code></paper-shadow> to step through the program or type <paper-shadow z="1" class="inline-shadow"><code>help</code></paper-shadow> to see the available commands.</p>';
                 $( "code" ).each(function(index) {
                         var text = $(this).text();
                         $(this).click(function() {
