@@ -93,6 +93,7 @@
     <script>
         "use strict";
         var editor;
+        var console1;
         $(function() {
 
             function attachWorker(console) {
@@ -126,7 +127,7 @@
             var blob = new Blob([document.querySelector("#worker").textContent], {type: "text/javascript"});
             var blobURL = window.URL.createObjectURL(blob);
 
-            var console1 = $( "#console1" ).jqconsole("", ">>> ");
+            console1 = $( "#console1" ).jqconsole("", ">>> ");
             /*
             var console2 = $( "#console2" ).jqconsole("", ">>> ");
             var console3 = $( "#console3" ).jqconsole("", ">>> ");
@@ -160,7 +161,6 @@
                 worker2 = attachWorker(console2);
                 worker3 = attachWorker(console3);
                 */
-                $( "#console1" ).css("visibility", "visible");
                 $.ajax({
                     type: "POST",
                     url: "/compile",
@@ -168,6 +168,8 @@
                     processData: false,
                     success: function(data) {
                         editor.getSession().setAnnotations([]);
+                        showInstructions();
+                        $( "#console1" ).css("visibility", "visible");
                         worker1.postMessage({cmd: "run", code: data});
                         /*
                         worker2.postMessage({cmd: "run", code: data});
@@ -199,17 +201,20 @@
 
             $( "#refresh" ).click(function() {
                     refresh();
-                    document.getElementById("help").innerHTML = '<p>Type <paper-shadow z="2" class="inline-shadow"><code>next</code></paper-shadow> to step through the program, or type <paper-shadow z="2" class="inline-shadow"><code>help</code></paper-shadow> to see the available commands.</p>';
-                    $( "code" ).each(function(index) {
-                            var text = $(this).text();
-                            $(this).click(function() {
-                                console1.SetPromptText(text);
-                                console1.AbortPrompt();
-                                worker1.postMessage({cmd: "input", data: text});
-                            });
-                            $(this).prop("title", 'Click me to send the command "' + text + '" to godebug');
-                    });
             });
+
+            function showInstructions() {
+                document.getElementById("help").innerHTML = '<p>You are now using godebug! Type <paper-shadow z="2" class="inline-shadow"><code>next</code></paper-shadow> to step through the program, or type <paper-shadow z="2" class="inline-shadow"><code>help</code></paper-shadow> to see the available commands.</p>';
+                $( "code" ).each(function(index) {
+                        var text = $(this).text();
+                        $(this).click(function() {
+                            console1.SetPromptText(text);
+                            console1.AbortPrompt();
+                            worker1.postMessage({cmd: "input", data: text});
+                        });
+                        $(this).prop("title", 'Click me to send the command "' + text + '" to godebug');
+                });
+            }
         });
     </script>
 </head>
