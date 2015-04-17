@@ -51,7 +51,7 @@
         width: 100%;
         margin: 0.5em 0;
     }
-    #console1,#console2,#console3 {
+    #console1 {
         position: relative;
         background-color: black;
         width: 100%;
@@ -114,6 +114,7 @@
                         console.Prompt(true, function(input) {
                             worker.postMessage({cmd: "input", data: input});
                         });
+                        console.Enable();
                         break;
                     case "done":
                         worker.terminate();
@@ -134,6 +135,7 @@
             var blobURL = window.URL.createObjectURL(blob);
 
             console1 = $( "#console1" ).jqconsole("", ">>> ");
+            console1.Disable();
             /*
             var console2 = $( "#console2" ).jqconsole("", ">>> ");
             var console3 = $( "#console3" ).jqconsole("", ">>> ");
