@@ -110,7 +110,7 @@
                         break;
                     case "done":
                         worker.terminate();
-                        console.Write("[program exited]", "jqconsole-system");
+                        console.Write("\nProgram exited. Try editing the program and re-running it!", "jqconsole-system");
                         break;
                     }
                 });
@@ -200,17 +200,15 @@
             $( "#refresh" ).click(function() {
                     refresh();
                     document.getElementById("help").innerHTML = '<p>Type <paper-shadow z="2" class="inline-shadow"><code>next</code></paper-shadow> to step through the program, or type <paper-shadow z="2" class="inline-shadow"><code>help</code></paper-shadow> to see the available commands.</p>';
-            });
-
-            var code = $( "code" );
-            $( "code" ).each(function(index) {
-                    var text = $(this).text();
-                    $(this).click(function() {
-                        console1.SetPromptText(text);
-                        console1.AbortPrompt();
-                        worker1.postMessage({cmd: "input", data: text});
+                    $( "code" ).each(function(index) {
+                            var text = $(this).text();
+                            $(this).click(function() {
+                                console1.SetPromptText(text);
+                                console1.AbortPrompt();
+                                worker1.postMessage({cmd: "input", data: text});
+                            });
+                            $(this).prop("title", 'Click me to send the command "' + text + '" to godebug');
                     });
-                    code.prop("title", 'Click me to send the command "' + text + '" to godebug');
             });
         });
     </script>
